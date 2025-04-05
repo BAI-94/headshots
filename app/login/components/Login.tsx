@@ -1,4 +1,4 @@
-"use client";
+"use client";// 客户端组件标识
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { AiOutlineGoogle } from "react-icons/ai";
 import { WaitingForMagicLink } from "./WaitingForMagicLink";
+// ... 导入语句
 
 type Inputs = {
   email: string;
@@ -22,32 +23,37 @@ export const Login = ({
   host: string | null;
   searchParams?: { [key: string]: string | string[] | undefined };
 }) => {
-  const supabase = createClientComponentClient<Database>();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isMagicLinkSent, setIsMagicLinkSent] = useState(false);
-  const { toast } = useToast();
+  const supabase = createClientComponentClient<Database>(); // 创建Supabase客户端
+  const [isSubmitting, setIsSubmitting] = useState(false); // 提交状态
+  const [isMagicLinkSent, setIsMagicLinkSent] = useState(false); // 魔法链接发送状态
+  const { toast } = useToast(); // 通知组件
 
+    // 表单控制
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitted },
   } = useForm<Inputs>();
 
+  // 表单提交处理函数
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setIsSubmitting(true);
     try {
+      // 发送魔法链接邮件
       await signInWithMagicLink(data.email);
       setTimeout(() => {
         setIsSubmitting(false);
+        // 显示成功通知
         toast({
           title: "Email sent",
           description: "Check your inbox for a magic link to sign in.",
           duration: 5000,
         });
-        setIsMagicLinkSent(true);
+        setIsMagicLinkSent(true); // 更新状态显示等待页面
       }, 1000);
     } catch (error) {
       setIsSubmitting(false);
+      // 显示错误通知
       toast({
         title: "Something went wrong",
         variant: "destructive",
@@ -58,16 +64,18 @@ export const Login = ({
     }
   };
 
+
   let inviteToken = null;
   if (searchParams && "inviteToken" in searchParams) {
     inviteToken = searchParams["inviteToken"];
   }
-
+  // 构建回调URL
   const protocol = host?.includes("localhost") ? "http" : "https";
   const redirectUrl = `${protocol}://${host}/auth/callback`;
 
   console.log({ redirectUrl });
 
+  // Google登录方法（当前未启用）
   const signInWithGoogle = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -79,11 +87,12 @@ export const Login = ({
     console.log(data, error);
   };
 
+  // 魔法链接登录方法
   const signInWithMagicLink = async (email: string) => {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: redirectUrl,
+        emailRedirectTo: redirectUrl,// 登录成功后重定向URL
       },
     });
 
@@ -92,12 +101,14 @@ export const Login = ({
     }
   };
 
+   // 如果已发送魔法链接，显示等待页面
   if (isMagicLinkSent) {
     return (
       <WaitingForMagicLink toggleState={() => setIsMagicLinkSent(false)} />
     );
   }
 
+   // 登录表单UI
   return (
     <>
       <div className="flex items-center justify-center p-8">
@@ -115,7 +126,7 @@ export const Login = ({
             Continue with Google
           </Button>
           <OR /> */}
-
+          {/* 邮箱登录表单 */}
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-2"
@@ -128,18 +139,22 @@ export const Login = ({
                   {...register("email", {
                     required: true,
                     validate: {
+                      // 邮箱格式验证
                       emailIsValid: (value: string) =>
                         /^[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value) ||
                         "Please enter a valid email",
+                      // 邮箱不能包含'+'
                       emailDoesntHavePlus: (value: string) =>
                         /^[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value) ||
                         "Email addresses with a '+' are not allowed",
+                      // 邮箱不能是临时邮箱
                       emailIsntDisposable: (value: string) =>
                         !disposableDomains.includes(value.split("@")[1]) ||
                         "Please use a permanent email address",
                     },
                   })}
                 />
+                {/* 显示错误信息 */}
                 {isSubmitted && errors.email && (
                   <span className={"text-xs text-red-400"}>
                     {errors.email?.message || "Email is required to sign in"}
@@ -148,6 +163,7 @@ export const Login = ({
               </div>
             </div>
 
+            {/* 提交按钮 */}
             <Button
               isLoading={isSubmitting}
               disabled={isSubmitting}
@@ -173,3 +189,4 @@ export const OR = () => {
     </div>
   );
 };
+

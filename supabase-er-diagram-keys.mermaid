@@ -1,0 +1,29 @@
+erDiagram
+    CREDITS {
+        bigint id PK
+        uuid user_id FK
+    }
+    
+    IMAGES {
+        bigint id PK
+        bigint modelId FK
+    }
+    
+    MODELS {
+        bigint id PK
+        uuid user_id FK
+    }
+    
+    SAMPLES {
+        bigint id PK
+        bigint modelId FK
+    }
+    
+    AUTH_USERS {
+        uuid id PK
+    }
+    
+    MODELS ||--o{ IMAGES : "has"
+    MODELS ||--o{ SAMPLES : "has"
+    AUTH_USERS ||--o{ MODELS : "creates"
+    AUTH_USERS ||--o{ CREDITS : "owns"
