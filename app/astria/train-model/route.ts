@@ -144,15 +144,15 @@ export async function POST(request: Request) {
   const modelId = data?.id;
 
   try {
-    const deploymentUrl = process.env.DEPLOYMENT_URL || '';
-    const baseUrl = deploymentUrl.startsWith('http://') || deploymentUrl.startsWith('https://') 
-      ? deploymentUrl 
-      : `https://${deploymentUrl}`;
+    //const deploymentUrl = process.env.DEPLOYMENT_URL || '';
+    //const baseUrl = deploymentUrl.startsWith('http://') || deploymentUrl.startsWith('https://') 
+    //  ? deploymentUrl 
+    //  : `https://${deploymentUrl}`;
 
-    const trainWebhook = `${baseUrl}/astria/train-webhook`;
+    const trainWebhook = `https://headshots-delta-virid.vercel.app/astria/train-webhook`;
     const trainWebhookWithParams = `${trainWebhook}?user_id=${user.id}&model_id=${modelId}&webhook_secret=${appWebhookSecret}`;
 
-    const promptWebhook = `${baseUrl}/astria/prompt-webhook`;
+    const promptWebhook = `https://headshots-delta-virid.vercel.app//astria/prompt-webhook`;
     const promptWebhookWithParams = `${promptWebhook}?user_id=${user.id}&model_id=${modelId}&webhook_secret=${appWebhookSecret}`;
 
     console.log({ trainWebhookWithParams, promptWebhookWithParams });
